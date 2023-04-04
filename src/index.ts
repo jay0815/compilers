@@ -1,161 +1,78 @@
-const Grammar = new Map(
-  [
-    [
-      'Expression', [['AdditiveExpression']]
-    ],
-    [
-      'AdditiveExpression', [
-        ['MultiplicativeExpression'],
-        ['AdditiveExpression', '+', 'MultiplicativeExpression'],
-        ['AdditiveExpression', '-', 'MultiplicativeExpression']
-      ]
-    ],
-    ['MultiplicativeExpression', [
-      ['PrimaryExpression'],
-      ['MultiplicativeExpression', '*', 'PrimaryExpression'],
-      ['MultiplicativeExpression', '/', 'PrimaryExpression'],
-    ]],
-    ['PrimaryExpression', [
-      ['Number'],
-      ['(', 'Expression', ')'],
-    ]],
-  ]
-);
+import getClosureState, { ClosureState, NormalState } from "./closure";
+import { Expression } from "./lexical";
 
-export const getClosureList = (symbol: string) => {
-  const store: string[][] = [];
-  const initQueue = Grammar.get(symbol);
-  if (initQueue) {
-    const visited = new Set();
-    const queue = [...initQueue];
-    while(queue.length) {
-      const current = queue.pop();
-      if (current) {
-        current.forEach((key) => {
-          const rules = Grammar.get(key);
-          if (rules && !visited.has(rules)) {
-            rules.forEach((rule) => {
-                store.push(rule);
-            })
-            queue.push(...rules)
-            visited.add(rules);
-          }
-        })
-      }
-    }
-  }
-  return store;
-}
-
-export const getClosure = (symbol: string) => {
-  const store: string[][] = [];
-  const initQueue = Grammar.get(symbol);
-  if (initQueue) {
-    const visited = new Set();
-    const queue = [...initQueue];
-    while(queue.length) {
-      const current = queue.pop();
-      if (current) {
-        current.forEach((key) => {
-          const rules = Grammar.get(key);
-          if (rules && !visited.has(rules)) {
-            rules.forEach((rule) => {
-                store.push(rule);
-            })
-            queue.push(...rules)
-            visited.add(rules);
-          }
-        })
-      }
-    }
-  }
-  return store;
-}
-
-/**
- * 
- * <Number> "+"
- * Number 先移入
- * 检查 "+", 不能移入, 进行归约, Number -> PrimaryExpression
- * 
- * 归于 至 无法规约时，还是无法移入，throw unexpected token
- * 
- * 当最终 不为 EOF, throw unexpected end
- */
-
-interface States {
-  [key: string]: {
-    $reduce?: string;
-  } & States
-}
-
-// const states = {
-//   Expression: {
-//     $reduce: 'AdditiveExpression',
-//   },
-//   PrimaryExpression: {
-//     $reduce: 'MultiplicativeExpression',
-//   },
-//   Number: {
-//     $reduce: "PrimaryExpression"
-//   },
-//   "(": {
-//     Expression: {
-//       $reduce: ")"
-//     }
-//   },
-//   MultiplicativeExpression: {
-//     $reduce: 'AdditiveExpression',
-//     '*': {
-//       PrimaryExpression: {
-//         $reduce: 'MultiplicativeExpression'
-//       }
-//     },
-//     '/': {
-//       PrimaryExpression: {
-//         $reduce: 'MultiplicativeExpression'
-//       }
-//     },
-//   },
-//   AdditiveExpression: {
-//     '+': {
-//       MultiplicativeExpression: {
-//         $reduce: 'AdditiveExpression',
-//       },
-//     },
-//     '-': {
-//       MultiplicativeExpression: {
-//         $reduce: 'AdditiveExpression',
-//       },
-//     },
-//     $reduce: 'Expression'
-//   },
-// };
-
-const initState = {
+export const initState = {
   'Expression': {
-    $reduce: 'AdditiveExpression'
+    // top level Expression rule
+    EOF: Object.create(null)
   }
+} as unknown as ClosureState;
+
+type Token = Expression | {
+  type: string;
+  children: Token[];
 }
 
-// const getClosureStates = (state) => {
-//   const property = Object.keys(state)[0];
-//   const closure = getClosure(property);
-//   // console.log('getClosureStates', closure)
-//   // closure.forEach(({ value, rules }) => {
+const expressionParser = (list: Expression[]) => {
+  const state = initState;
 
-//   // })
-//   // for (let property of Object.keys(state)) {
-//   //   const closure = getClosure(property);
+  const tokens: Token[] = [];
+  const states = [initState];
+  getClosureState(state);
+  const n = list.length;
 
-//   // }
-//   // for (let property of Object.keys(state)) {
-//   //   if (property.startsWith('$')) {
-//   //     continue;
-//   //   }
-//   //   getClosureStates(state[property])
+  const getCurrentState = () => {
+    const last = states.length - 1;
+    return states[last] as NormalState;
+  }
 
-//   // }
-// }
+  const shift = (token: Expression) => {
+    let currentState = getCurrentState();
+    while (!currentState[token.type]) {
+      reduce()
+      currentState = getCurrentState();
+    }
+    // 将当前输入符号压入栈中，并将状态转移到下一个状态
+    tokens.push(token);
+    const nextState = currentState[token.type];
+    states.push(nextState);
+  };
 
-// getClosureStates(initState)
+  const reduce = () => {
+    // 将栈顶的若干个符号弹出，这些符号构成一个产生式的右侧部分。然后将左侧的非终结符压入栈中，并根据goto函数转移到新的状态
+    const currentState = getCurrentState();
+    if (currentState) {
+      const { target, count } = currentState.$reduce;
+      const currentToken: Token = {
+        type: target,
+        children: []
+      }
+      for(let i = 0; i < count; i++) {
+        states.pop();
+        const token = tokens.pop();
+        if (token) {
+          currentToken.children.unshift(token);
+        }
+      }
+      shift(currentToken);
+    } else {
+      throw Error('syntax error');
+    }
+  };
+
+  for (let i = 0; i < n; i++) {
+    const token = list[i];
+    if (token.type === 'EOF') {
+      if (i === n - 1) {
+        break;
+      } else {
+        throw Error('throw unexpected end');
+      }
+    }
+    shift(token);
+  }
+
+  return tokens;
+}
+
+export default expressionParser;

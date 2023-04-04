@@ -1,22 +1,58 @@
-import { getClosureList } from '../src/index';
+import { getClosure } from '../src/closure';
 import { describe, expect, test } from '@jest/globals';
+import genExpression from '../src/lexical';
+import expressionParser from '../src';
 
 const beautify = (target: any) => JSON.stringify(target, null, 4);
 describe("test lr analysis", () => {
   test("gen closure list by symbol", () => {
-    const closure = getClosureList('Expression')
+    const closure = getClosure('Expression')
     expect(beautify(closure)).toBe(beautify(
       [
-        ['MultiplicativeExpression'],
-        ['AdditiveExpression', '+', 'MultiplicativeExpression'],
-        ['AdditiveExpression', '-', 'MultiplicativeExpression'],
-        ['PrimaryExpression'],
-        ['MultiplicativeExpression', '*', 'PrimaryExpression'],
-        ['MultiplicativeExpression', '/', 'PrimaryExpression'],
-        ['Number'],
-        ['(', 'Expression', ')'],
-        ['AdditiveExpression']
+        {
+          rules: ['MultiplicativeExpression'],
+          $reduce: 'AdditiveExpression'
+        },
+        {
+          rules: ['AdditiveExpression', '+', 'MultiplicativeExpression'],
+          $reduce: 'AdditiveExpression'
+        },
+        {
+          rules: ['AdditiveExpression', '-', 'MultiplicativeExpression'],
+          $reduce: 'AdditiveExpression'
+        },
+        {
+          rules: ['PrimaryExpression'],
+          $reduce: 'MultiplicativeExpression'
+        },
+        {
+          rules: ['MultiplicativeExpression', '*', 'PrimaryExpression'],
+          $reduce: 'MultiplicativeExpression'
+        },
+        {
+          rules: ['MultiplicativeExpression', '/', 'PrimaryExpression'],
+          $reduce: 'MultiplicativeExpression'
+        },
+        {
+          rules: ['Number'],
+          $reduce: 'PrimaryExpression'
+        },
+        {
+          rules: ['(', 'Expression', ')'],
+          $reduce: 'PrimaryExpression'
+        },
+        {
+          rules: ['AdditiveExpression'],
+          $reduce: 'Expression'
+        },
       ]
     ));
+  });
+
+  test('ast length should be 5', () => {
+    const testCase = "1*(2+3)";
+    const list = genExpression(testCase);
+    const ast = expressionParser(list);
+    expect(ast.length).toBe(5)
   });
 })
