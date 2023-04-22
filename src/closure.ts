@@ -2,31 +2,7 @@ interface Closure {
   $reduce: string; rules: string[]
 }
 
-const Grammar = new Map(
-  [
-    [
-      'Expression', [['AdditiveExpression']]
-    ],
-    [
-      'AdditiveExpression', [
-        ['MultiplicativeExpression'],
-        ['AdditiveExpression', '+', 'MultiplicativeExpression'],
-        ['AdditiveExpression', '-', 'MultiplicativeExpression']
-      ]
-    ],
-    ['MultiplicativeExpression', [
-      ['PrimaryExpression'],
-      ['MultiplicativeExpression', '*', 'PrimaryExpression'],
-      ['MultiplicativeExpression', '/', 'PrimaryExpression'],
-    ]],
-    ['PrimaryExpression', [
-      ['Number'],
-      ['(', 'Expression', ')'],
-    ]],
-  ]
-);
-
-export const getClosure = (nonTerminalSymbol: string) => {
+export const getClosure = (nonTerminalSymbol: string, Grammar: Map<string, string[][]>) => {
   const store: Closure[] = [];
   const initSymbols = Grammar.get(nonTerminalSymbol)
   const stack = initSymbols ? [...initSymbols] : [] as string[][];
@@ -70,13 +46,13 @@ export type NormalState = {
 
 export type ClosureState = NormalState | EOFState
 
-const getClosureState = (state: ClosureState) => {
+const getClosureState = (state: ClosureState, Grammar: Map<string, string[][]>) => {
   StateRef.set(JSON.stringify(state), state);
   for (const property of Object.keys(state)) {
     if (property.startsWith('$')) {
       continue;
     }
-    const closures = getClosure(property);
+    const closures = getClosure(property, Grammar);
     closures.forEach((closure) => {
       const { rules, $reduce } = closure;
       let currentState = state as NormalState;
@@ -104,7 +80,7 @@ const getClosureState = (state: ClosureState) => {
     if (currentState) {
       (state as NormalState)[property] = currentState as NormalState;
     } else {
-      getClosureState((state as NormalState)[property])
+      getClosureState((state as NormalState)[property], Grammar)
     }
   }
 }
