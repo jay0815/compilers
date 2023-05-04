@@ -1,40 +1,86 @@
 import { describe, expect, test } from '@jest/globals';
-import genExpression from '../src/js-lexical';
+import lexicalParser from '../src/javascript-lexical';
 
 describe("test js lexical", () => {
+  test('Identifier', () => {
+    const list = lexicalParser("a");
+    expect(list).toStrictEqual(
+      [{ value: 'a', type: 'Identifier' }, { type: 'EOF' }]
+    )
+  })
+  test('NumericLiteral', () => {
+    const list = lexicalParser("1");
+    expect(list).toStrictEqual(
+      [{ value: '1', type: 'NumericLiteral' }, { type: 'EOF' }]
+    )
+  })
+  test('StringLiteral', () => {
+    const list = lexicalParser("'1'");
+    expect(list).toStrictEqual(
+      [{ value: "'1'", type: 'StringLiteral' }, { type: 'EOF' }]
+    )
+  })
+  test('BooleanLiteral', () => {
+    const list = lexicalParser("true");
+    expect(list).toStrictEqual(
+      [{ value: "true", type: 'BooleanLiteral' }, { type: 'EOF' }]
+    )
+  })
+  test('NullLiteral', () => {
+    const list = lexicalParser("null");
+    expect(list).toStrictEqual(
+      [{ value: "null", type: 'NullLiteral' }, { type: 'EOF' }]
+    )
+  })
   test("analyze calc expression", () => {
     const testCase = "1 *(2+3)";
-    const tokens = genExpression(testCase);
+    const tokens = lexicalParser(testCase);
     expect(tokens).toStrictEqual(
       [
         { type: 'NumericLiteral', value: '1' },
         { type: 'WhiteSpace', value: ' ' },
-        { type: 'Punctuator', value: '*' },
-        { type: 'Punctuator', value: '(' },
+        { type: '*', value: '*' },
+        { type: '(', value: '(' },
         { type: 'NumericLiteral', value: '2' },
-        { type: 'Punctuator', value: '+' },
+        { type: '+', value: '+' },
         { type: 'NumericLiteral', value: '3' },
-        { type: 'Punctuator', value: ")" },
+        { type: ')', value: ")" },
         { type: 'EOF' }
       ]
     );
   });
   test("analyze statement", () => {
     const testCase = "let a = 'cons';";
-    const tokens = genExpression(testCase);
+    const tokens = lexicalParser(testCase);
     expect(tokens).toStrictEqual(
       [
-        { type: 'Identifier', value: 'let' },
+        { type: 'let', value: 'let' },
         { type: 'WhiteSpace', value: ' ' },
         { type: 'Identifier', value: 'a' },
         { type: 'WhiteSpace', value: ' ' },
-        { type: 'Punctuator', value: '=' },
+        { type: '=', value: '=' },
         { type: 'WhiteSpace', value: ' ' },
         { type: 'StringLiteral', value: "'cons'" },
-        { type: 'Punctuator', value: ";" },
+        { type: ';', value: ";" },
         { type: 'EOF' }
       ]
     );
   });
-
+  test("analyze statement", () => {
+    const testCase = "let a = truefalse;";
+    const tokens = lexicalParser(testCase);
+    expect(tokens).toStrictEqual(
+      [
+        { type: 'let', value: 'let' },
+        { type: 'WhiteSpace', value: ' ' },
+        { type: 'Identifier', value: 'a' },
+        { type: 'WhiteSpace', value: ' ' },
+        { type: '=', value: '=' },
+        { type: 'WhiteSpace', value: ' ' },
+        { type: 'StringLiteral', value: "'cons'" },
+        { type: ';', value: ";" },
+        { type: 'EOF' }
+      ]
+    );
+  });
 })
