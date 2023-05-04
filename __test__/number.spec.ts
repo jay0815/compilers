@@ -54,6 +54,6 @@ describe("test lr analysis", () => {
     const testCase = "1*(2+3)";
     const list = genExpression(testCase);
     const ast = expressionParser(NumberInitState, NumberGrammar ,list);
-    expect(ast.length).toBe(2)
+    expect(ast.length).toBe(1)
   });
 })

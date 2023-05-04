@@ -59,7 +59,8 @@ const expressionParser = (initState: ClosureState, Grammar: Map<string, string[]
     const token = list[i];
     shift(token);
   }
-
+  // 移除 EOF
+  tokens.pop();
   return tokens;
 }
 
