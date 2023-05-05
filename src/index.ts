@@ -1,12 +1,16 @@
 import getClosureState, { ClosureState, NormalState } from "./closure";
-import { Expression } from "./lexical";
+
+interface Expression {
+  value?: string;
+  type: string
+}
 
 type Token = Expression | {
   type: string;
   children: Token[];
 }
 
-const expressionParser = (initState: ClosureState, Grammar: Map<string, string[][]>, list: Expression[]) => {
+const genAst = (initState: ClosureState, Grammar: Map<string, string[][]>, list: Expression[]) => {
   const state = initState;
 
   const tokens: Token[] = [];
@@ -64,4 +68,4 @@ const expressionParser = (initState: ClosureState, Grammar: Map<string, string[]
   return tokens;
 }
 
-export default expressionParser;
+export default genAst;

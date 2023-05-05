@@ -16,7 +16,6 @@ const genExpression = <T extends readonly string[]>({
   const res: Expression<Keys>[] = [];
   const n = types.length;
   const regExp = new RegExp(rule.trim().replaceAll(" ", "").replaceAll("\n", "|"), 'g');
-  console.log('regExp', regExp)
   while (searchResult = regExp.exec(code)) {
     const groups = searchResult.groups as Record<Keys, string | undefined>;
     for (let i = 0; i < n; i++) {
