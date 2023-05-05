@@ -10,8 +10,7 @@ const IntegerLiteral = "?:[1-9]+[0-9]*|0(?:\\.[0-9]*|\\.)?(?:[eE][+-]{0,1}[0-9]+
 
 export const NumericLiteral = `(${BinaryIntegerLiteral})|(${OctalIntegerLiteral})|(${HexIntegerLiteral})|(${IntegerLiteral})`;
 
-export const BooleanLiteral = "(?:true|false)(?![_$a-zA-Z0-9])";
-
+export const BooleanLiteral = "(?<=^|[\\s({[;])true(?=$|[\\s)}\\];])|(?<=^|[\\s({[;])false(?=$|[\\s)}\\];])";
 export const NullLiteral = "null(?![_$a-zA-Z0-9])";
 
 export const Identifier = "[a-zA-Z_$][a-zA-Z0-9_$\\u200C\\u200D]*";
@@ -19,8 +18,7 @@ export const Identifier = "[a-zA-Z_$][a-zA-Z0-9_$\\u200C\\u200D]*";
 // const singleQuote = `'`;
 // const doubleQuote = `"`;
 // const genStringLiteral = (symbol: string) => `${symbol}(?:[^${symbol}\\\\n\\\\\\r\\u2028\\u2029]|\\\\(?:['"\\\\bfnrtv\\n\\r\\u2028\\u2029]|\\r\\n)|\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}|\\\\[^0-9ux'"\\\\bfnrtv\\n\\\\\\r\\u2028\\u2029])*${symbol}`;
-export const StringLiteral = `"(?:[^"\\n\\\\\\r\\u2028\\u2029]|\\\\(?:['"\\\\bfnrtv\\n\\r\\u2028\\u2029]|\\r\\n)|\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}|\\\\[^0-9ux'"\\\\bfnrtv\\n\\\\\\r\\u2028\\u2029])*"|'(?:[^'\\n\\\\\\r\\u2028\\u2029]|\\\\(?:['"\\\\bfnrtv\\n\\r\\u2028\\u2029]|\\r\\n)|\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}|\\\\[^0-9ux'"\\\\bfnrtv\\n\\\\\\r\\u2028\\u2029])*'`;
-
+export const StringLiteral = `"(?:[^"\\n\\\\\\r\\u2028\\u2029]|\\\\(?:['"\\\\bfnrtv\\n\\r\\u2028\\u2029]|\\r\\n)|\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}|\\\\u\\{[0-9a-fA-F]{1,6}\\}|\\\\[^0-9ux'"\\\\bfnrtv\\n\\\\\\r\\u2028\\u2029])*"|'(?:[^'\\n\\\\\\r\\u2028\\u2029]|\\\\(?:['"\\\\bfnrtv\\n\\r\\u2028\\u2029]|\\r\\n)|\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}|\\\\u\\{[0-9a-fA-F]{1,6}\\}|\\\\[^0-9ux'"\\\\bfnrtv\\n\\\\\\r\\u2028\\u2029])*'`;
 export const Punctuator = ">>>=|>>=|<<=|===|!==|>>>|<<|%=|\-=|\\+=|\\*|\\*=|\\\||\\^|\!|\~|\\+|\-|\/|\\(|\\)|\{|\}|\[|\]|\>|\<|\=|\!|\&|\\|\%|\~|\:|\,|\;|\\?";
 
 const TokenRegex = `
