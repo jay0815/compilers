@@ -1,9 +1,10 @@
 import type { ClosureState } from "./closure";
 export const initState = {
-  'Expression': {
-    // top level Expression rule
-    EOF: Object.create(null)
-  }
+  'Literal': {
+      EOF: {
+        $finish: true
+      }
+    }
 } as unknown as ClosureState;
 
 

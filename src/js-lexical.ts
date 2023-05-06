@@ -43,7 +43,9 @@ export interface Expression {
 }
 
 export const helper = (value: string, type: Types) => {
-  if (['Punctuator', 'Keyword'].includes(type)) {
+  if (type === 'WhiteSpace') {
+    return null;
+  } else if (['Punctuator', 'Keyword'].includes(type)) {
     return {
       type: value,
       value

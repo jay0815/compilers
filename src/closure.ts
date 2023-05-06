@@ -2,26 +2,51 @@ interface Closure {
   $reduce: string; rules: string[]
 }
 
+export const compareGetClosure = (nonTerminalSymbol: string, Grammar: Map<string, string[][]>) => {
+  const extend = new Set();
+  const res = [];
+  const stack = [nonTerminalSymbol];
+
+  while (stack.length > 0) {
+    // console.log(JSON.stringify(stack))
+    const symbol = stack.pop();
+    if (typeof symbol !== 'undefined') {
+      if (extend.has(symbol)) {
+        continue;
+      }
+      extend.add(symbol);
+      const allRules = Grammar.get(symbol) || [];
+      for (const rules of allRules) {
+        // console.log(rules, 'rules')
+        res.push({
+          rules, $reduce: symbol
+        })
+        stack.push(...rules)
+      }
+    }
+  }
+  return res;
+}
+
 export const getClosure = (nonTerminalSymbol: string, Grammar: Map<string, string[][]>) => {
   const store: Closure[] = [];
-  const initSymbols = Grammar.get(nonTerminalSymbol)
-  const stack = initSymbols ? [...initSymbols] : [] as string[][];
+  const stack = [nonTerminalSymbol];
   const visited = new Set<string>();
   while (stack.length) {
-    const temp: string[][] = [];
+    const temp: string[] = [];
     while (stack.length) {
-      const symbols = stack.pop();
-      if (symbols) {
-        symbols.forEach((symbol) => {
-          if (!visited.has(symbol)) {
-            const allRules = Grammar.get(symbol);
-            if (Array.isArray(allRules)) {
-              store.push(...allRules.map((rules) => ({ rules, $reduce: symbol })));
-              temp.push(...allRules)
-            }
-            visited.add(symbol);
+      const symbol = stack.pop();
+      if (symbol) {
+        if (!visited.has(symbol)) {
+          const allRules = Grammar.get(symbol);
+          if (Array.isArray(allRules)) {
+            allRules.forEach((rules) => {
+              store.push({ rules, $reduce: symbol });
+              temp.push(...rules)
+            })
           }
-        })
+          visited.add(symbol);
+        }
       }
     }
     stack.push(...temp)

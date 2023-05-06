@@ -51,6 +51,8 @@ const genAst = (initState: ClosureState, Grammar: Map<string, string[][]>, list:
         states.pop();
         const token = tokens.pop();
         if (token) {
+          // 将产生式的左侧部分作为新的符号压入栈中
+          // 保证顺序
           currentToken.children.unshift(token);
         }
       }
@@ -59,6 +61,7 @@ const genAst = (initState: ClosureState, Grammar: Map<string, string[][]>, list:
       throw Error('syntax error');
     }
   };
+  // 根据 EOF 进行规约
   for (let i = 0; i < n; i++) {
     const token = list[i];
     shift(token);
