@@ -440,135 +440,17 @@ describe("test lr analysis", () => {
 				],
 				[
 					"PrimaryExpression",
-					[
-						["(", "Expression", ")"],
-						["Identifier"],
-						["Literal"],
-						["FunctionExpression"],
-						["new", "MemberExpression", "Arguments"],
-					],
+					[["(", "Expression", ")"], ["Identifier"], ["Literal"]],
 				],
 				[
 					"MemberExpression",
 					[
 						["PrimaryExpression"],
+						["new", "MemberExpression"],
+						["new", "MemberExpression", "(", ")"],
 						["MemberExpression", ".", "Identifier"],
-						["MemberExpression", "[", "Expression", "]"],
-						["new", "MemberExpression", "Arguments"],
-					],
-				],
-				[
-					"CallExpression",
-					[
-						["MemberExpression", "Arguments"],
-						["CallExpression", "Arguments"],
-						["MemberExpression", ".", "Identifier", "Arguments"],
-						[
-							"MemberExpression",
-							"[",
-							"Expression",
-							"]",
-							"Arguments",
-						],
-						["PrimaryExpression", "Arguments"],
-					],
-				],
-				[
-					"Arguments",
-					[
-						["(", ")"],
-						["(", "ArgumentList", ")"],
-					],
-				],
-				[
-					"ArgumentList",
-					[
-						["AssignmentExpression"],
-						["ArgumentList", ",", "AssignmentExpression"],
-					],
-				],
-				[
-					"LeftHandSideExpression",
-					[["CallExpression"], ["MemberExpression"]],
-				],
-				[
-					"AssignmentExpression",
-					[
-						["ConditionalExpression"],
-						["LeftHandSideExpression", "=", "AssignmentExpression"],
-						[
-							"LeftHandSideExpression",
-							"+=",
-							"AssignmentExpression",
-						],
-						[
-							"LeftHandSideExpression",
-							"-=",
-							"AssignmentExpression",
-						],
-						[
-							"LeftHandSideExpression",
-							"*=",
-							"AssignmentExpression",
-						],
-						[
-							"LeftHandSideExpression",
-							"/=",
-							"AssignmentExpression",
-						],
-					],
-				],
-				[
-					"ConditionalExpression",
-					[
-						["LogicalORExpression"],
-						[
-							"LogicalORExpression",
-							"?",
-							"AssignmentExpression",
-							":",
-							"AssignmentExpression",
-						],
-					],
-				],
-				[
-					"LogicalORExpression",
-					[
-						["LogicalANDExpression"],
-						["LogicalORExpression", "||", "LogicalANDExpression"],
-					],
-				],
-				[
-					"LogicalANDExpression",
-					[
-						["EqualityExpression"],
-						["LogicalANDExpression", "&&", "EqualityExpression"],
-					],
-				],
-				[
-					"EqualityExpression",
-					[
-						["RelationalExpression"],
-						["EqualityExpression", "==", "RelationalExpression"],
-						["EqualityExpression", "!=", "RelationalExpression"],
-					],
-				],
-				[
-					"RelationalExpression",
-					[
-						["AdditiveExpression"],
-						["RelationalExpression", "<", "AdditiveExpression"],
-						["RelationalExpression", ">", "AdditiveExpression"],
-						["RelationalExpression", "<=", "AdditiveExpression"],
-						["RelationalExpression", ">=", "AdditiveExpression"],
-					],
-				],
-				[
-					"AdditiveExpression",
-					[
-						["MultiplicativeExpression"],
-						["AdditiveExpression", "+", "MultiplicativeExpression"],
-						["AdditiveExpression", "-", "MultiplicativeExpression"],
+						["MemberExpression", "[", "Identifier", "]"],
+						["MemberExpression", "(", ")"],
 					],
 				],
 				[
@@ -593,10 +475,88 @@ describe("test lr analysis", () => {
 					],
 				],
 				[
+					"AdditiveExpression",
+					[
+						["MultiplicativeExpression"],
+						["AdditiveExpression", "+", "MultiplicativeExpression"],
+						["AdditiveExpression", "-", "MultiplicativeExpression"],
+					],
+				],
+				["LeftHandSideExpression", [["MemberExpression"]]],
+				[
+					"AssignmentExpression",
+					[
+						["AdditiveExpression"],
+						["LeftHandSideExpression", "=", "AssignmentExpression"],
+						[
+							"LeftHandSideExpression",
+							"+=",
+							"AssignmentExpression",
+						],
+						[
+							"LeftHandSideExpression",
+							"-=",
+							"AssignmentExpression",
+						],
+						[
+							"LeftHandSideExpression",
+							"*=",
+							"AssignmentExpression",
+						],
+						[
+							"LeftHandSideExpression",
+							"/=",
+							"AssignmentExpression",
+						],
+					],
+				],
+				[
 					"Expression",
 					[
 						["AssignmentExpression"],
 						["Expression", ",", "AssignmentExpression"],
+					],
+				],
+				[
+					"MemberExpression",
+					[
+						["PrimaryExpression"],
+						["FunctionExpression"],
+						["new", "MemberExpression"],
+						["new", "MemberExpression", "(", "Arguments", ")"],
+						["MemberExpression", ".", "Identifier"],
+						["MemberExpression", "[", "Identifier", "]"],
+						["MemberExpression", "(", "Arguments", ")"],
+					],
+				],
+				[
+					"FunctionExpression",
+					[
+						[
+							"function",
+							"(",
+							"FormalParameters",
+							")",
+							"{",
+							"FunctionBody",
+							"}",
+						],
+					],
+				],
+				[
+					"FormalParameters",
+					[
+						[],
+						["Identifier"],
+						["FormalParameters", ",", "Identifier"],
+					],
+				],
+				[
+					"Arguments",
+					[
+						[],
+						["AssignmentExpression"],
+						["Arguments", ",", "AssignmentExpression"],
 					],
 				],
 			]),
