@@ -21,7 +21,7 @@ const doubleQuote = `"`;
 const genStringLiteral = (symbol: string) => `"(?:[^"\\\\n\\\\\\r\\u2028\\u2029]|\\\\(?:['"\\\\bfnrtv\\n\\r\\u2028\\u2029]|\\r\\n)|\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}|\\\\[^0-9ux'"\\\\bfnrtv\\n\\\\\\r\\u2028\\u2029])*$`;
 export const StringLiteral = `${genStringLiteral(doubleQuote)}|${genStringLiteral(singleQuote)}`;
 
-export const Punctuator = ">>>=|>>=|<<=|===|!==|>>>|<<|%=|\-=|\\+=|\\*|\\*=|\\\||\\^|\!|\~|\\+|\-|\/|\\(|\\)|\{|\}|\[|\]|\>|\<|\=|\!|\&|\\|\%|\~|\:|\,|\;|\\?";
+export const Punctuator = ">>>=|>>=|<<=|===|!==|>>>|<<|%=|\-=|\\+=|\\*|\\*=|\\\||\\^|\!|\~|\\+|\-|\/|\\(|\\)|\{|\}|\[|\]|\>|\<|\=|\!|\&|\\|\%|\~|\:|\,|\;|\\?|\\.";
 
 const TokenRegex = `
 (?<WhiteSpace>${WhiteSpace})
@@ -64,31 +64,5 @@ const lexicalParser = (code: string) => {
     format: helper
   })
 }
-
-// const genExpression = (code: string) => {
-//   let currentRegExpRes: RegExpExecArray | null;
-//   const res: Expression[] = [];
-//   const n = types.length;
-//   const reg = new RegExp(TokenRegex.trim().replaceAll(" ", "").replaceAll("\n", "|"), 'g');
-  
-//   while (currentRegExpRes = reg.exec(code)) {
-//     if (currentRegExpRes && currentRegExpRes.groups) {
-//       for (let i = 0; i < n; i++) {
-//         const groups = currentRegExpRes.groups as Record<Types, string | undefined>;
-//         const value = groups[types[i]];
-//         if (typeof value !== 'undefined') {
-//           res.push(
-//             helper(types[i], value)
-//           )
-//           break;
-//         }
-//       }
-//     }
-//   }
-//   res.push({
-//     type: 'EOF'
-//   })
-//   return res;
-// }
 
 export default lexicalParser;
