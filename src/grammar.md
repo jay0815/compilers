@@ -35,3 +35,27 @@ AdditiveExpression
 MultiplicativeExpression
 
 ## 求 closure 过程
+
+
+## Atom
+
+## Expression
+
+## Statement
+
+if|switch
+for|while
+Declaration
+ExpressionStatement ::= Expression ";"
+
+## Block
+
+### ASI
+
+auto semi insertion
+
+1. \n\r
+2. }
+3. EOF
+
+当前 symbol 不被当前状态接受，当symbol 前有回车 或者 symbol 后有特定 symbol, 此时可以插入 ;
