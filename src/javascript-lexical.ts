@@ -23,16 +23,24 @@ export const Punctuator = ">>>=|>>=|<<=|===|!==|>>>|<<|%=|\-=|\\+=|\\*|\\*=|\\\|
 
 const TokenRegex = `
 (?<WhiteSpace>${WhiteSpace})
-(?<NumericLiteral>(${BinaryIntegerLiteral})|(${OctalIntegerLiteral})|(${HexIntegerLiteral})|(${IntegerLiteral}))
+(?<NumberLiteral>(${BinaryIntegerLiteral})|(${OctalIntegerLiteral})|(${HexIntegerLiteral})|(${IntegerLiteral}))
 (?<Keyword>${Keywords})
 (?<NullLiteral>${NullLiteral})
 (?<BooleanLiteral>${BooleanLiteral})
 (?<Punctuator>${Punctuator})
 (?<StringLiteral>"(?:[^"\\n\\\\\\r\\u2028\\u2029]|\\\\(?:['"\\\\bfnrtv\\n\\r\\u2028\\u2029]|\\r\\n)|\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}|\\\\[^0-9ux'"\\\\bfnrtv\\n\\\\\\r\\u2028\\u2029])*"|'(?:[^'\\n\\\\\\r\\u2028\\u2029]|\\\\(?:['"\\\\bfnrtv\\n\\r\\u2028\\u2029]|\\r\\n)|\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}|\\\\[^0-9ux'"\\\\bfnrtv\\n\\\\\\r\\u2028\\u2029])*')
-(?<Identifier>(${Identifier}))
-`
+(?<Identifier>(${Identifier}))`;
 
-const types = ['WhiteSpace', 'NumericLiteral', 'Keyword', 'NullLiteral', 'BooleanLiteral', 'StringLiteral', 'Punctuator', 'Identifier'] as const;
+const types = [
+	"WhiteSpace",
+	"NumberLiteral",
+	"Keyword",
+	"NullLiteral",
+	"BooleanLiteral",
+	"StringLiteral",
+	"Punctuator",
+	"Identifier",
+] as const;
 type Types = (typeof types)[number];
 
 const helper = (value: string, type: Types) => {

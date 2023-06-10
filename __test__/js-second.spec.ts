@@ -928,12 +928,31 @@ describe("test lr analysis", () => {
 					"MemberExpression",
 					[
 						["PrimaryExpression"],
-						["new", "MemberExpression"],
-						["new", "MemberExpression", "(", ")"],
 						["MemberExpression", ".", "Identifier"],
-						["MemberExpression", "[", "Identifier", "]"],
-						["MemberExpression", "(", ")"],
+						["MemberExpression", "[", "Expression", "]"],
 					],
+				],
+				[
+					"MemberExpression",
+					[
+						["PrimaryExpression"],
+						["MemberExpression", ".", "Identifier"],
+						["MemberExpression", "[", "Expression", "]"],
+					],
+				],
+				[
+					"CallExpression",
+					[
+						["new", "MemberExpression", "(", ")"],
+						["MemberExpression", "(", ")"],
+						["CallExpression", ".", "Identifier"],
+						["CallExpression", "[", "Expression", "]"],
+						["CallExpression", "(", "Arguments", ")"],
+					],
+				],
+				[
+					"NewExpression",
+					[["MemberExpression"], ["new", "NewExpression"]],
 				],
 				[
 					"MultiplicativeExpression",
@@ -964,7 +983,13 @@ describe("test lr analysis", () => {
 						["AdditiveExpression", "-", "MultiplicativeExpression"],
 					],
 				],
-				["LeftHandSideExpression", [["MemberExpression"]]],
+				[
+					"LeftHandSideExpression",
+					[
+						["CallExpression"],
+						["NewExpression"],
+					],
+				],
 				[
 					"AssignmentExpression",
 					[
@@ -1051,6 +1076,7 @@ describe("test lr analysis", () => {
 			]),
 			list
 		);
+		console.log(JSON.stringify(ast, null, 4));
 		// expect(ast).toStrictEqual([
 		// 	{
 		// 		type: "Statement",

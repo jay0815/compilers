@@ -28,7 +28,7 @@ const LineTerminator = "(?:\\n)";
 const TokenRegex = `
 (?<LineTerminator>${LineTerminator})
 (?<WhiteSpace>${WhiteSpace})
-(?<NumericLiteral>(${BinaryIntegerLiteral})|(${OctalIntegerLiteral})|(${HexIntegerLiteral})|(${IntegerLiteral}))
+(?<NumberLiteral>(${BinaryIntegerLiteral})|(${OctalIntegerLiteral})|(${HexIntegerLiteral})|(${IntegerLiteral}))
 (?<Keyword>${Keywords})
 (?<NullLiteral>${NullLiteral})
 (?<BooleanLiteral>(${BooleanLiteral})
@@ -40,7 +40,7 @@ const TokenRegex = `
 const types = [
 	"LineTerminator",
 	"WhiteSpace",
-	"NumericLiteral",
+	"NumberLiteral",
 	"Keyword",
 	"NullLiteral",
 	"BooleanLiteral",

@@ -15,7 +15,7 @@ const Grammar = [
 			["BooleanLiteral"],
 			["NullLiteral"],
 			["StringLiteral"],
-			["NumericLiteral"],
+			["NumberLiteral"],
 		],
 	],
 	[
@@ -29,7 +29,7 @@ const Grammar = [
 			// ["new", "MemberExpression"],
 			["new", "MemberExpression", "(", ")"],
 			["MemberExpression", ".", "Identifier"],
-			["MemberExpression", "[", "Identifier", "]"],
+			["MemberExpression", "[", "Expression", "]"],
 			["MemberExpression", "(", ")"],
 		],
 	],
@@ -88,8 +88,16 @@ const Grammar = [
 	[
 		"IfStatement",
 		[
-			["if", "(", "Expression", ")", "Statement"],
-			["if", "(", "Expression", ")", "Statement", "else", "Statement"],
+			["if", "(", "Expression", ")", "StatementList"],
+			[
+				"if",
+				"(",
+				"Expression",
+				")",
+				"StatementList",
+				"else",
+				"StatementList",
+			],
 		],
 	],
 	[
@@ -104,7 +112,7 @@ const Grammar = [
 				";",
 				"Expression",
 				")",
-				"Statement",
+				"StatementList",
 			],
 		],
 	],
@@ -120,6 +128,7 @@ const Grammar = [
 		[["StatementListItem"], ["StatementList", "StatementListItem"]],
 	],
 	["StatementListItem", [["Statement"], ["Declaration"]]],
+	["Program", [["StatementList"]]],
 ] as [string, string[][]][];
 
 

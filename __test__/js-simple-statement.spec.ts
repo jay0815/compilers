@@ -189,17 +189,33 @@ describe("test lr analysis", () => {
 					"MemberExpression",
 					[
 						["PrimaryExpression"],
-						["new", "MemberExpression"],
-						["new", "MemberExpression", "(", ")"],
+						// ["new", "MemberExpression"],
 						["MemberExpression", ".", "Identifier"],
-						["MemberExpression", "[", "Identifier", "]"],
+						["MemberExpression", "[", "Expression", "]"],
+					],
+				],
+				[
+					"CallExpression",
+					[
+						["new", "MemberExpression", "(", ")"],
 						["MemberExpression", "(", ")"],
+						["CallExpression", ".", "Identifier"],
+						["CallExpression", "[", "Expression", "]"],
+						["CallExpression", "(", "Arguments", ")"],
+					],
+				],
+				[
+					"NweExpression",
+					[
+						["MemberExpression"],
+						["new", "NweExpression"],
 					],
 				],
 				[
 					"MultiplicativeExpression",
 					[
-						["MemberExpression"],
+						["CallExpression"],
+						["NweExpression"],
 						["MultiplicativeExpression", "*", "MemberExpression"],
 						["MultiplicativeExpression", "/", "MemberExpression"],
 						["MultiplicativeExpression", "%", "MemberExpression"],

@@ -5,7 +5,7 @@ interface Expression {
   type: string
 }
 
-type Token = Expression | {
+export type Token = Expression | {
   type: string;
   children: Token[];
 }
