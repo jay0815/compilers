@@ -27,12 +27,13 @@ const Grammar = [
 		[
 			["PrimaryExpression"],
 			// ["new", "MemberExpression"],
+			["MemberExpression", "(", ")"],
 			["new", "MemberExpression", "(", ")"],
 			["MemberExpression", ".", "Identifier"],
 			["MemberExpression", "[", "Expression", "]"],
-			["MemberExpression", "(", ")"],
 		],
 	],
+	["NewExpression", [["new", "NewExpression"], ["MemberExpression"]]],
 	[
 		"MultiplicativeExpression",
 		[
@@ -50,7 +51,7 @@ const Grammar = [
 			["AdditiveExpression", "-", "MultiplicativeExpression"],
 		],
 	],
-	["LeftHandSideExpression", [["MemberExpression"]]],
+	["LeftHandSideExpression", [["NewExpression"]]],
 	[
 		"AssignmentExpression",
 		[
@@ -64,7 +65,12 @@ const Grammar = [
 	],
 	[
 		"Expression",
-		[["AssignmentExpression"], ["Expression", ",", "AssignmentExpression"]],
+		[
+			["AssignmentExpression"],
+			["Expression", ",", "AssignmentExpression"],
+			// ["UpdateExpression"],
+			// ["RelationalExpression"],
+		],
 	],
 	[
 		"Statement",
@@ -72,6 +78,7 @@ const Grammar = [
 			["ExpressionStatement"],
 			["IfStatement"],
 			["ForStatement"],
+			["WhileStatement"],
 			["Declaration"],
 			["BlockStatement"],
 		],
@@ -114,6 +121,25 @@ const Grammar = [
 				")",
 				"StatementList",
 			],
+		],
+	],
+	["WhileStatement", [["while", "(", "Expression", ")", "StatementList"]]],
+	[
+		"UpdateExpression",
+		[
+			["LeftHandSideExpression"],
+			["LeftHandSideExpression", "++"],
+			["LeftHandSideExpression", "--"],
+		],
+	],
+	[
+		"RelationalExpression",
+		[
+			["AdditiveExpression"],
+			["RelationalExpression", "<", "AdditiveExpression"],
+			["RelationalExpression", "<=", "AdditiveExpression"],
+			["RelationalExpression", ">", "AdditiveExpression"],
+			["RelationalExpression", ">=", "AdditiveExpression"],
 		],
 	],
 	[
