@@ -9,8 +9,9 @@ describe("test for statement analyze", () => {
 	test("condition is true", () => {
 		const testCase = `
             let b = 0;
-            for (let i = 1; i < 10; i++) {
-                b = b + i;
+						let i = 0;
+            for (i = 1; i < 10; i++) {
+                b = b + 1;
             }
         `;
 		const list = genExpression(testCase);
@@ -26,6 +27,29 @@ describe("test for statement analyze", () => {
 			list
 		);
 		evaluate(ast[0]);
-		expect(globalEnv.get('b')).toBe(45);
+		expect(globalEnv.get('b')).toBe(9);
 	});
+
+		test("for with break", () => {
+			const testCase = `
+						let i = 0;
+            for (i = 1; i < 10; i++) {
+								break;
+            }
+        `;
+			const list = genExpression(testCase);
+			const ast = expressionParser(
+				genInitState({
+					Program: {
+						EOF: {
+							$finish: true,
+						},
+					},
+				}),
+				genGrammar(Grammar),
+				list
+			);
+			evaluate(ast[0]);
+			expect(globalEnv.get("b")).toBe(1);
+		});
 });

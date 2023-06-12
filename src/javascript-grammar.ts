@@ -1,12 +1,11 @@
 import type { ClosureState } from "./closure";
 export const initState = {
-  'Literal': {
-      EOF: {
-        $finish: true
-      }
-    }
+	Literal: {
+		EOF: {
+			$finish: true,
+		},
+	},
 } as unknown as ClosureState;
-
 
 const Grammar = [
 	[
@@ -37,10 +36,10 @@ const Grammar = [
 	[
 		"MultiplicativeExpression",
 		[
-			["LeftHandSideExpression"],
-			["MultiplicativeExpression", "*", "LeftHandSideExpression"],
-			["MultiplicativeExpression", "/", "LeftHandSideExpression"],
-			["MultiplicativeExpression", "%", "LeftHandSideExpression"],
+			["UnaryExpression"],
+			["MultiplicativeExpression", "*", "UnaryExpression"],
+			["MultiplicativeExpression", "/", "UnaryExpression"],
+			["MultiplicativeExpression", "%", "UnaryExpression"],
 		],
 	],
 	[
@@ -55,7 +54,7 @@ const Grammar = [
 	[
 		"AssignmentExpression",
 		[
-			["AdditiveExpression"],
+			["ConditionalExpression"],
 			["LeftHandSideExpression", "=", "AssignmentExpression"],
 			["LeftHandSideExpression", "+=", "AssignmentExpression"],
 			["LeftHandSideExpression", "-=", "AssignmentExpression"],
@@ -65,12 +64,7 @@ const Grammar = [
 	],
 	[
 		"Expression",
-		[
-			["AssignmentExpression"],
-			["Expression", ",", "AssignmentExpression"],
-			// ["UpdateExpression"],
-			// ["RelationalExpression"],
-		],
+		[["AssignmentExpression"], ["Expression", ",", "AssignmentExpression"]],
 	],
 	[
 		"Statement",
@@ -81,6 +75,7 @@ const Grammar = [
 			["WhileStatement"],
 			["Declaration"],
 			["BlockStatement"],
+			["BreakStatement"],
 		],
 	],
 	["ExpressionStatement", [["Expression", ";"]]],
@@ -123,13 +118,28 @@ const Grammar = [
 			],
 		],
 	],
+	["BreakStatement", [["break"], ["break", ";"]]],
 	["WhileStatement", [["while", "(", "Expression", ")", "StatementList"]]],
+	["UnaryExpression", [["UpdateExpression"]]],
 	[
 		"UpdateExpression",
 		[
 			["LeftHandSideExpression"],
 			["LeftHandSideExpression", "++"],
 			["LeftHandSideExpression", "--"],
+			["--", "UnaryExpression"],
+			["++", "UnaryExpression"],
+		],
+	],
+	["ConditionalExpression", [["EqualityExpression"]]],
+	[
+		"EqualityExpression",
+		[
+			["RelationalExpression"],
+			["EqualityExpression", "==", "RelationalExpression"],
+			["EqualityExpression", "!=", "RelationalExpression"],
+			["EqualityExpression", "===", "RelationalExpression"],
+			["EqualityExpression", "!==", "RelationalExpression"],
 		],
 	],
 	[
@@ -157,5 +167,4 @@ const Grammar = [
 	["Program", [["StatementList"]]],
 ] as [string, string[][]][];
 
-
-export default Grammar
+export default Grammar;

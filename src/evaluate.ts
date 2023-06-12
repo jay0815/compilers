@@ -1,6 +1,7 @@
 import { Token } from "./index";
 import Reference from "./reference";
 import Environment from "./Environment";
+import Completion from "./Completion";
 
 type Node = { type: string; children: Token[] };
 type Types = keyof typeof evaluator;
@@ -22,20 +23,30 @@ const evaluator = {
 		return evaluate(node.children[0]);
 	},
 	StatementListItem(node: Node) {
+		console.log("StatementListItem", node);
 		return evaluate(node.children[0]);
 	},
 	StatementList(node: Node) {
+		console.log("StatementList", node);
 		if (node.children.length === 1) {
 			return evaluate(node.children[0]);
 		}
-		evaluate(node.children[0]);
-		return evaluate(node.children[1]);
+		const completion = evaluate(node.children[0]);
+		if (completion.type === "normal") {
+			return evaluate(node.children[1]);
+		}
+		return completion;
 	},
 	Statement(node: Node) {
+		const res = evaluate(node.children[0]);
+		console.log("Statement", res);
 		return evaluate(node.children[0]);
 	},
 	ExpressionStatement(node: Node) {
-		return evaluate(node.children[0]);
+		return new Completion("normal", evaluate(node.children[0]));
+	},
+	BreakStatement(node: Node) {
+		return new Completion("break");
 	},
 	IfStatement(node: Node) {
 		const size = node.children.length;
@@ -43,6 +54,8 @@ const evaluator = {
 			const condition = evaluate(node.children[2]);
 			if (condition) {
 				return evaluate(node.children[4]);
+			} else {
+				return new Completion("normal");
 			}
 		} else if (size === 7) {
 			const condition = evaluate(node.children[2]);
@@ -65,7 +78,10 @@ const evaluator = {
 					break;
 				}
 				// 执行 循环体 statementList
-				evaluate(node.children[8]);
+				const completion = evaluate(node.children[8]);
+				if (completion.type === "break") {
+					return new Completion("normal");
+				}
 				// update
 				evaluate(node.children[6]);
 			}
@@ -81,7 +97,10 @@ const evaluator = {
 					break;
 				}
 				// 执行 循环体 statementList
-				evaluate(node.children[4]);
+				const completion = evaluate(node.children[4]);
+				if (completion.type === "break") {
+					return new Completion("normal");
+				}
 			}
 		}
 	},
@@ -99,13 +118,25 @@ const evaluator = {
 			return ref.get();
 		}
 	},
+	UnaryExpression(node: Node) {
+		const size = node.children.length;
+		if (size === 1) {
+			return evaluate(node.children[0]);
+		}
+	},
 	RelationalExpression(node: Node) {
 		const size = node.children.length;
 		if (size === 1) {
 			return evaluate(node.children[0]);
 		} else if (size === 3) {
-			const left = evaluate(node.children[0]);
-			const right = evaluate(node.children[2]);
+			let left = evaluate(node.children[0]);
+			if (left instanceof Reference) {
+				left = left.get();
+			}
+			let right = evaluate(node.children[2]);
+			if (right instanceof Reference) {
+				right = right.get();
+			}
 			if (node.children[1].type === "<") {
 				return left < right;
 			} else if (node.children[1].type === ">") {
@@ -117,11 +148,41 @@ const evaluator = {
 			}
 		}
 	},
+	EqualityExpression(node: Node) {
+		const size = node.children.length;
+		if (size === 1) {
+			return evaluate(node.children[0]);
+		} else if (size === 3) {
+			let left = evaluate(node.children[0]);
+			if (left instanceof Reference) {
+				left = left.get();
+			}
+			let right = evaluate(node.children[2]);
+			if (right instanceof Reference) {
+				right = right.get();
+			}
+			if (node.children[1].type === "==") {
+				return left == right;
+			} else if (node.children[1].type === "!=") {
+				return left != right;
+			} else if (node.children[1].type === "===") {
+				return left === right;
+			} else if (node.children[1].type === "!==") {
+				return left !== right;
+			}
+		}
+	},
+	ConditionalExpression(node: Node) {
+		const size = node.children.length;
+		if (size === 1) {
+			return evaluate(node.children[0]);
+		}
+	},
 	BlockStatement(node: Node) {
 		const size = node.children.length;
 		if (size === 2) {
 			// 空 的 block statement
-			return;
+			return new Completion("normal");
 		} else if (size === 3) {
 			// 创建一个新的 block scope 环境
 			this.envStack.push(new Environment(this.currentEnv));
