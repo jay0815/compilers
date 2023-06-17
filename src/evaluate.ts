@@ -23,11 +23,9 @@ const evaluator = {
 		return evaluate(node.children[0]);
 	},
 	StatementListItem(node: Node) {
-		console.log("StatementListItem", node);
 		return evaluate(node.children[0]);
 	},
 	StatementList(node: Node) {
-		console.log("StatementList", node);
 		if (node.children.length === 1) {
 			return evaluate(node.children[0]);
 		}
@@ -39,14 +37,16 @@ const evaluator = {
 	},
 	Statement(node: Node) {
 		const res = evaluate(node.children[0]);
-		console.log("Statement", res);
-		return evaluate(node.children[0]);
+		return res;
 	},
 	ExpressionStatement(node: Node) {
 		return new Completion("normal", evaluate(node.children[0]));
 	},
 	BreakStatement(node: Node) {
 		return new Completion("break");
+	},
+	ContinueStatement(node: Node) {
+		return new Completion("continue");
 	},
 	IfStatement(node: Node) {
 		const size = node.children.length;
@@ -75,15 +75,18 @@ const evaluator = {
 				const condition = evaluate(node.children[4]);
 				if (!condition) {
 					// 当不满足 condition 时，退出循环
-					break;
+					return new Completion("normal");
 				}
 				// 执行 循环体 statementList
 				const completion = evaluate(node.children[8]);
 				if (completion.type === "break") {
 					return new Completion("normal");
+				} else if (completion.type === "continue") {
+					continue;
+				} else {
+					// update
+					evaluate(node.children[6]);
 				}
-				// update
-				evaluate(node.children[6]);
 			}
 		}
 	},
@@ -100,6 +103,8 @@ const evaluator = {
 				const completion = evaluate(node.children[4]);
 				if (completion.type === "break") {
 					return new Completion("normal");
+				} else if (completion.type === "continue") {
+					continue;
 				}
 			}
 		}
@@ -122,6 +127,28 @@ const evaluator = {
 		const size = node.children.length;
 		if (size === 1) {
 			return evaluate(node.children[0]);
+		}
+	},
+	ShiftExpression(node: Node) {
+		const size = node.children.length;
+		if (size === 1) {
+			return evaluate(node.children[0]);
+		} else if (size === 3) {
+			let left = evaluate(node.children[0]);
+			if (left instanceof Reference) {
+				left = left.get();
+			}
+			let right = evaluate(node.children[2]);
+			if (right instanceof Reference) {
+				right = right.get();
+			}
+			if (node.children[1].type === "<<") {
+				return left << right;
+			} else if (node.children[1].type === ">>") {
+				return left >> right;
+			} else if (node.children[1].type === ">>>") {
+				return left >>> right;
+			}
 		}
 	},
 	RelationalExpression(node: Node) {
@@ -176,6 +203,93 @@ const evaluator = {
 		const size = node.children.length;
 		if (size === 1) {
 			return evaluate(node.children[0]);
+		} else if (size === 5) {
+			const condition = evaluate(node.children[0]);
+			if (condition) {
+				return evaluate(node.children[2]);
+			} else {
+				return evaluate(node.children[4]);
+			}
+		}
+	},
+	LogicalORExpression(node: Node) {
+		const size = node.children.length;
+		if (size === 1) {
+			return evaluate(node.children[0]);
+		} else if (size === 3) {
+			let left = evaluate(node.children[0]);
+			if (left instanceof Reference) {
+				left = left.get();
+			}
+			if (left) {
+				return left;
+			} else {
+				return evaluate(node.children[2]);
+			}
+		}
+	},
+	LogicalANDExpression(node: Node) {
+		const size = node.children.length;
+		if (size === 1) {
+			return evaluate(node.children[0]);
+		} else if (size === 3) {
+			let left = evaluate(node.children[0]);
+			if (left instanceof Reference) {
+				left = left.get();
+			}
+			if (left) {
+				return evaluate(node.children[2]);
+			} else {
+				return false;
+			}
+		}
+	},
+	BitwiseORExpression(node: Node) {
+		const size = node.children.length;
+		if (size === 1) {
+			return evaluate(node.children[0]);
+		} else if (size === 3) {
+			let left = evaluate(node.children[0]);
+			if (left instanceof Reference) {
+				left = left.get();
+			}
+			let right = evaluate(node.children[2]);
+			if (right instanceof Reference) {
+				right = right.get();
+			}
+			return left | right;
+		}
+	},
+	BitwiseXORExpression(node: Node) {
+		const size = node.children.length;
+		if (size === 1) {
+			return evaluate(node.children[0]);
+		} else if (size === 3) {
+			let left = evaluate(node.children[0]);
+			if (left instanceof Reference) {
+				left = left.get();
+			}
+			let right = evaluate(node.children[2]);
+			if (right instanceof Reference) {
+				right = right.get();
+			}
+			return left ^ right;
+		}
+	},
+	BitwiseANDExpression(node: Node) {
+		const size = node.children.length;
+		if (size === 1) {
+			return evaluate(node.children[0]);
+		} else if (size === 3) {
+			let left = evaluate(node.children[0]);
+			if (left instanceof Reference) {
+				left = left.get();
+			}
+			let right = evaluate(node.children[2]);
+			if (right instanceof Reference) {
+				right = right.get();
+			}
+			return left & right;
 		}
 	},
 	BlockStatement(node: Node) {
@@ -313,6 +427,7 @@ const evaluator = {
 		const ref = evaluate(node.children[1]) as Reference;
 		const value = evaluate(node.children[3]);
 		ref.set(value);
+		return new Completion("normal");
 	},
 	Identifier(node: Node) {
 		type Identifier = {

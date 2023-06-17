@@ -76,6 +76,7 @@ const Grammar = [
 			["Declaration"],
 			["BlockStatement"],
 			["BreakStatement"],
+			["ContinueStatement"],
 		],
 	],
 	["ExpressionStatement", [["Expression", ";"]]],
@@ -118,7 +119,8 @@ const Grammar = [
 			],
 		],
 	],
-	["BreakStatement", [["break"], ["break", ";"]]],
+	["BreakStatement", [["break", ";"], ['break']]],
+	["ContinueStatement", [["continue", ";"], ['continue']]],
 	["WhileStatement", [["while", "(", "Expression", ")", "StatementList"]]],
 	["UnaryExpression", [["UpdateExpression"]]],
 	[
@@ -131,7 +133,54 @@ const Grammar = [
 			["++", "UnaryExpression"],
 		],
 	],
-	["ConditionalExpression", [["EqualityExpression"]]],
+	[
+		"ConditionalExpression",
+		[
+			["LogicalORExpression"],
+			[
+				"LogicalORExpression",
+				"?",
+				"AssignmentExpression",
+				":",
+				"AssignmentExpression",
+			],
+		],
+	],
+	[
+		"LogicalORExpression",
+		[
+			["LogicalANDExpression"],
+			["LogicalORExpression", "||", "LogicalANDExpression"],
+		],
+	],
+	[
+		"LogicalANDExpression",
+		[
+			["BitwiseORExpression"],
+			["LogicalANDExpression", "&&", "BitwiseORExpression"],
+		],
+	],
+	[
+		"BitwiseORExpression",
+		[
+			["BitwiseXORExpression"],
+			["BitwiseORExpression", "|", "BitwiseXORExpression"],
+		],
+	],
+	[
+		"BitwiseXORExpression",
+		[
+			["BitwiseANDExpression"],
+			["BitwiseXORExpression", "^", "BitwiseANDExpression"],
+		],
+	],
+	[
+		"BitwiseANDExpression",
+		[
+			["EqualityExpression"],
+			["BitwiseANDExpression", "&", "EqualityExpression"],
+		],
+	],
 	[
 		"EqualityExpression",
 		[
@@ -145,11 +194,20 @@ const Grammar = [
 	[
 		"RelationalExpression",
 		[
+			["ShiftExpression"],
+			["RelationalExpression", "<", "ShiftExpression"],
+			["RelationalExpression", "<=", "ShiftExpression"],
+			["RelationalExpression", ">", "ShiftExpression"],
+			["RelationalExpression", ">=", "ShiftExpression"],
+		],
+	],
+	[
+		"ShiftExpression",
+		[
 			["AdditiveExpression"],
-			["RelationalExpression", "<", "AdditiveExpression"],
-			["RelationalExpression", "<=", "AdditiveExpression"],
-			["RelationalExpression", ">", "AdditiveExpression"],
-			["RelationalExpression", ">=", "AdditiveExpression"],
+			["ShiftExpression", "<<", "AdditiveExpression"],
+			["ShiftExpression", ">>", "AdditiveExpression"],
+			["ShiftExpression", ">>>", "AdditiveExpression"],
 		],
 	],
 	[

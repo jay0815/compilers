@@ -53,6 +53,7 @@ const genAst = (
 				shift(token);
 				return;
 			}
+			console.log(token);
 			throw Error("syntax error");
 		}
 		// 将当前输入符号压入栈中，并转移到下一个状态
