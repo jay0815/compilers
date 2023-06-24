@@ -16,7 +16,12 @@ const Grammar = [
 			["StringLiteral"],
 			["NumberLiteral"],
 			["ObjectLiteral"],
+			["FunctionExpression"],
 		],
+	],
+	[
+		"FunctionExpression",
+		[["function", "Identifier", "(", "Parameters", ")", "StatementList"]],
 	],
 	// todo 补充 Object key 使用 [] 的语法
 	[
@@ -42,9 +47,9 @@ const Grammar = [
 		"MemberExpression",
 		[
 			["PrimaryExpression"],
-			// ["new", "MemberExpression"],
-			["MemberExpression", "(", "Arguments", ")"],
 			["new", "MemberExpression", "(", ")"],
+			["new", "MemberExpression", "(", "Arguments", ")"],
+			["MemberExpression", "(", "Arguments", ")"],
 			["MemberExpression", ".", "Identifier"],
 			["MemberExpression", "[", "Expression", "]"],
 		],
@@ -53,7 +58,20 @@ const Grammar = [
 		"Arguments",
 		[["AssignmentExpression"], ["Arguments", ",", "AssignmentExpression"]],
 	],
-	["NewExpression", [["new", "NewExpression"], ["MemberExpression"]]],
+	["NewExpression", [["MemberExpression"], ["new", "NewExpression"]]],
+	[
+		"CoverCallExpressionAndAsyncArrowHead",
+		[["MemberExpression", "(", "Arguments", ")"]],
+	],
+	[
+		"CallExpression",
+		[
+			["CoverCallExpressionAndAsyncArrowHead"],
+			["CallExpression", "(", "Arguments", ")"],
+			["CallExpression", "[", "Expression", "]"],
+			["CallExpression", ".", "IdentifierName"],
+		],
+	],
 	[
 		"MultiplicativeExpression",
 		[
@@ -71,7 +89,7 @@ const Grammar = [
 			["AdditiveExpression", "-", "MultiplicativeExpression"],
 		],
 	],
-	["LeftHandSideExpression", [["NewExpression"]]],
+	["LeftHandSideExpression", [["NewExpression"], ["CallExpression"]]],
 	[
 		"AssignmentExpression",
 		[
@@ -105,7 +123,7 @@ const Grammar = [
 		"FunctionDeclaration",
 		[
 			["function", "Identifier", "(", "Parameters", ")", "StatementList"],
-			["function", "Identifier", "(",")", "StatementList"],
+			["function", "Identifier", "(", ")", "StatementList"],
 			[
 				"function",
 				"StringLiteral",
@@ -114,13 +132,7 @@ const Grammar = [
 				")",
 				"StatementList",
 			],
-			[
-				"function",
-				"StringLiteral",
-				"(",
-				")",
-				"StatementList",
-			],
+			["function", "StringLiteral", "(", ")", "StatementList"],
 		],
 	],
 	[
@@ -128,16 +140,10 @@ const Grammar = [
 		[
 			["let", "Identifier", "=", "Expression", ";"],
 			["const", "Identifier", "=", "Expression", ";"],
-			['var', "Identifier", "=", "Expression", ";"],
-		]
-	],
-	[
-		"Declaration",
-		[
-			["LexicalDeclaration"],
-			["FunctionDeclaration"],
+			["var", "Identifier", "=", "Expression", ";"],
 		],
 	],
+	["Declaration", [["LexicalDeclaration"], ["FunctionDeclaration"]]],
 	[
 		"IfStatement",
 		[

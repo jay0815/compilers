@@ -1,4 +1,5 @@
-import evaluate from './evaluate';
+import Environment from './Environment';
+import { Evaluator, Node, NodeTypes } from './evaluate';
 interface DataProperty {
   value: any;
   writable: boolean;
@@ -35,67 +36,94 @@ export class JSObject {
   }
 }
 
-export class JSFunction extends JSObject {
-	functionBody: any = {};
-	evaluator: Record<string, any>;
-	env: any[];
-	constructor(functionBody: any[], evaluator: any, env: any[]) {
+interface JSFunctionInterface {
+	call?: (...args: any[]) => unknown;
+	construct?: (...args: any[]) => unknown;
+}
+
+export class JSFunction extends JSObject implements JSFunctionInterface {
+	functionBody: Node;
+	evaluator: Evaluator;
+	env: Environment;
+	parameters: string[] = [];
+	constructor(
+		functionBody: Node,
+		evaluator: Evaluator,
+		env: Environment,
+		parameters: string[]
+	) {
 		super();
 		this.functionBody = functionBody;
 		this.evaluator = evaluator;
 		this.env = env;
+		this.parameters = parameters;
 	}
-	call(that: JSObject) {
-    // todo 增加 that 到 env 中
-    this.evaluator.envStack.push(this.env);
-		const res = this.evaluator[this.functionBody.type](this.functionBody);
-    this.evaluator.envStack.pop();
-    return res;
+	call(that: JSObject, args: any[]) {
+		// todo 增加 that 到 env 中
+		const currentEnv = new Environment(this.env);
+		this.parameters.forEach((p, i) => {
+			currentEnv.set(p, args[i]);
+		});
+		this.evaluator.envStack.push(this.env);
+		const type = (this.functionBody as any).type as Exclude<
+			NodeTypes,
+			| "envStack"
+			| "currentEnv"
+			| "microTaskQueue"
+			| "runTask"
+			| "preProcessor"
+		>;
+		const res = this.evaluator[type](this.functionBody as any);
+		this.evaluator.envStack.pop();
+		return res;
 	}
-	construct() {
-    const obj = new JSObject();
-    const res = this.call(obj);
-    if (res instanceof JSObject) {
-      return res;
-    }
-    return obj;
-  }
+	construct(func: JSFunction, args: any[]) {
+		const obj = new JSObject();
+		const res = this.call(obj, args);
+		if (res instanceof JSObject) {
+			return res;
+		}
+		return obj;
+	}
 }
 
-export class PromiseFunction extends JSFunction {
+export class PromiseFunction implements JSFunctionInterface {
 	call() {
 		throw Error("PromiseFunction can not be called");
 	}
-	construct(func: JSFunction) {
+	construct(func: JSFunction, args: any[]) {
 		const obj = new JSObject();
-    const then = new ThenFunction();
-    const resolve = new ResolveFunction(then);
-    func.call(resolve);
-    obj.setProperty("then", then);
-    return obj;
+		const then = new ThenFunction();
+		const resolve = new ResolveFunction(then, this.evaluator);
+		func.call(resolve, args);
+		obj.setProperty("then", then);
+		return obj;
 	}
 }
 
 class Task {
+	func: JSFunction;
+	args: any;
 	constructor(args: any, func: JSFunction) {
-    this.args = args;
-    this.func = func;
-  }
-  run() {
-  }
+		this.args = args;
+		this.func = func;
+	}
+	run() {
+		this.func.call(this.func, this.args);
+	}
 }
 
-class ResolveFunction extends JSFunction {
-	then: ThenFunction | null = null;
-	constructor(then: ThenFunction) {
-		super([], {}, []);
+class ResolveFunction implements JSFunctionInterface {
+	then: ThenFunction;
+	constructor(then: ThenFunction, evaluate: Evaluator) {
 		this.then = then;
+		this.evaluator = evaluate;
 	}
 	call(v: any) {
-    this.evaluator.microTaskQueue.push();
-  }
+		this.evaluator.microTaskQueue.push(new Task(v, this.then));
+	}
 }
 
-class ThenFunction extends JSFunction {
+class ThenFunction implements JSFunctionInterface {
 	call(func: JSFunction) {}
 }

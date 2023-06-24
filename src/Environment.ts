@@ -1,3 +1,4 @@
+import { Identifier } from './js-lexical';
 class Environment {
 	variables = new Map<string, any>();
 	// scope chain
@@ -5,6 +6,11 @@ class Environment {
 	constructor(parent?: Environment) {
 		this.parent = parent || null;
 	}
+
+	identifier(name: string) {
+		this.variables.set(name, void 0);
+	}
+
 	set(name: string, value: any) {
 		// 当前环境中有该变量 或者 当前环境没有父环境
 		// 则在当前环境中设置该变量
