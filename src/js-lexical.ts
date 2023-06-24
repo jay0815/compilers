@@ -21,7 +21,8 @@ const doubleQuote = `"`;
 const genStringLiteral = (symbol: string) => `"(?:[^"\\\\n\\\\\\r\\u2028\\u2029]|\\\\(?:['"\\\\bfnrtv\\n\\r\\u2028\\u2029]|\\r\\n)|\\\\x[0-9a-fA-F]{2}|\\\\u[0-9a-fA-F]{4}|\\\\[^0-9ux'"\\\\bfnrtv\\n\\\\\\r\\u2028\\u2029])*$`;
 export const StringLiteral = `${genStringLiteral(doubleQuote)}|${genStringLiteral(singleQuote)}`;
 
-export const Punctuator = ">>>=|>>=|<<=|===|==|!==|>>>|>>|<<|\\+\\+|\-\-|%=|\-=|\\+=|\\*|\\*=|\\\||\\^|\!|\~|\\+|\-|\/|\\(|\\)|\{|\}|\[|\]|\>|\<|\=|\!|\&\&|\&|\\|\\||\\|\%|\~|\:|\,|\;|\\?|\\.";
+export const Punctuator =
+	">>>=|>>=|<<=|===|==|!==|>>>|>>|<<|\\|\\||\\+\\+|--|%=|-=|\\+=|\\*|\\*=|\\||\\^|!|~|\\+|-|/|\\(|\\)|{|}|[|]|>|<|=|!|&&|&|\\|\\||\\|%|~|:|,|;|\\?|\\.";
 
 const LineTerminator = "(?:\\n)";
 
@@ -73,11 +74,11 @@ export const helper = (value: string, type: Types) => {
 
 const lexicalParser = (code: string) => {
   return genExpression({
-    code,
-    types,
-    rule: TokenRegex,
-    format: helper
-  })
+		code,
+		types,
+		rule: TokenRegex,
+		format: helper,
+  });
 }
 
 export default lexicalParser;

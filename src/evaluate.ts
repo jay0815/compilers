@@ -2,20 +2,28 @@ import { Token } from "./index";
 import Reference from "./reference";
 import Environment from "./Environment";
 import Completion from "./Completion";
+import { JSFunction, JSObject } from "./baseType";
 
 type Node = { type: string; children: Token[] };
 type Types = keyof typeof evaluator;
 
 const evaluate = (ast: Token): any => {
-	return evaluator[ast.type as Exclude<Types, "envStack" | "currentEnv">](
-		ast as any
-	);
+	return evaluator[
+		ast.type as Exclude<
+			Types,
+			"envStack" | "currentEnv" | "microTaskQueue" | "runTask"
+		>
+	](ast as any);
 };
 
 export const globalEnv = new Environment();
 
 const evaluator = {
 	envStack: [globalEnv] as Environment[],
+	microTaskQueue: [] as (() => void)[],
+	runTask() {
+		// 宏任务		
+	},
 	get currentEnv() {
 		return this.envStack[this.envStack.length - 1];
 	},
@@ -222,9 +230,9 @@ const evaluator = {
 				left = left.get();
 			}
 			if (left) {
-				return left;
-			} else {
 				return evaluate(node.children[2]);
+			} else {
+				return left;
 			}
 		}
 	},
@@ -408,7 +416,12 @@ const evaluator = {
 	},
 	StringLiteral(node: Node) {
 		// todo convert value to string
-		return String((node as any).value);
+		const str = String((node as any).value);
+		// todo 补充完整的处理逻辑
+		if ((str.startsWith("'") && str.endsWith("'")) || (str.startsWith('"') && str.endsWith('"'))) {
+			return str.slice(1, -1);
+		}
+		return str;
 	},
 	NumberLiteral(node: Node) {
 		// todo calculate number with IEEE 754
@@ -421,12 +434,41 @@ const evaluator = {
 		}
 		return false;
 	},
+	ObjectLiteral(node: Node) {
+		const size = node.children.length;
+		if (size === 2) {
+			const innerObject = new JSObject();
+			return innerObject;
+		} else if (size === 3) {
+			const innerObject = new JSObject();
+			((node.children[1] as any).children).forEach((property: any) => {
+				if (property.children.length === 3) {
+					const key = evaluate(property.children[0]);
+					const value = evaluate(property.children[2]);
+					innerObject.setProperty(key, value);
+				}
+			});
+			return innerObject;
+		}
+	},
+	// PropertyList(node: Node) {},
+	// Property(node: Node) {},
 	Declaration(node: Node) {
+		return evaluate(node.children[0]);
+	},
+	Parameters(node: Node) {},
+	LexicalDeclaration(node: Node) {
 		const name = (node.children[1] as any).value;
 		this.currentEnv.set(name, void 0);
 		const ref = evaluate(node.children[1]) as Reference;
 		const value = evaluate(node.children[3]);
 		ref.set(value);
+		return new Completion("normal");
+	},
+	FunctionDeclaration(node: Node) {
+		const name = (node.children[1] as any).value;
+		const func = new JSFunction(node.children[5] as any, this, this.envStack);
+		this.currentEnv.set(name, func);
 		return new Completion("normal");
 	},
 	Identifier(node: Node) {

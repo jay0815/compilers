@@ -15,6 +15,23 @@ const Grammar = [
 			["NullLiteral"],
 			["StringLiteral"],
 			["NumberLiteral"],
+			["ObjectLiteral"],
+		],
+	],
+	// todo 补充 Object key 使用 [] 的语法
+	[
+		"Property",
+		[
+			["StringLiteral", ":", "Expression"],
+			["Identifier", ":", "Expression"],
+		],
+	],
+	["PropertyList", [["Property"], ["PropertyList", ",", "Property"]]],
+	[
+		"ObjectLiteral",
+		[
+			["{", "}"],
+			["{", "PropertyList", "}"],
 		],
 	],
 	[
@@ -26,11 +43,15 @@ const Grammar = [
 		[
 			["PrimaryExpression"],
 			// ["new", "MemberExpression"],
-			["MemberExpression", "(", ")"],
+			["MemberExpression", "(", "Arguments", ")"],
 			["new", "MemberExpression", "(", ")"],
 			["MemberExpression", ".", "Identifier"],
 			["MemberExpression", "[", "Expression", "]"],
 		],
+	],
+	[
+		"Arguments",
+		[["AssignmentExpression"], ["Arguments", ",", "AssignmentExpression"]],
 	],
 	["NewExpression", [["new", "NewExpression"], ["MemberExpression"]]],
 	[
@@ -73,19 +94,48 @@ const Grammar = [
 			["IfStatement"],
 			["ForStatement"],
 			["WhileStatement"],
-			["Declaration"],
 			["BlockStatement"],
 			["BreakStatement"],
 			["ContinueStatement"],
 		],
 	],
 	["ExpressionStatement", [["Expression", ";"]]],
+	["Parameters", [["Identifier"], ["Parameters", ",", "Identifier"]]],
+	[
+		"FunctionDeclaration",
+		[
+			["function", "Identifier", "(", "Parameters", ")", "StatementList"],
+			["function", "Identifier", "(",")", "StatementList"],
+			[
+				"function",
+				"StringLiteral",
+				"(",
+				"Parameters",
+				")",
+				"StatementList",
+			],
+			[
+				"function",
+				"StringLiteral",
+				"(",
+				")",
+				"StatementList",
+			],
+		],
+	],
+	[
+		"LexicalDeclaration",
+		[
+			["let", "Identifier", "=", "Expression", ";"],
+			["const", "Identifier", "=", "Expression", ";"],
+			['var', "Identifier", "=", "Expression", ";"],
+		]
+	],
 	[
 		"Declaration",
 		[
-			["var", "Identifier", "=", "Expression", ";"],
-			["let", "Identifier", "=", "Expression", ";"],
-			["const", "Identifier", "=", "Expression", ";"],
+			["LexicalDeclaration"],
+			["FunctionDeclaration"],
 		],
 	],
 	[
@@ -119,8 +169,8 @@ const Grammar = [
 			],
 		],
 	],
-	["BreakStatement", [["break", ";"], ['break']]],
-	["ContinueStatement", [["continue", ";"], ['continue']]],
+	["BreakStatement", [["break", ";"], ["break"]]],
+	["ContinueStatement", [["continue", ";"], ["continue"]]],
 	["WhileStatement", [["while", "(", "Expression", ")", "StatementList"]]],
 	["UnaryExpression", [["UpdateExpression"]]],
 	[
