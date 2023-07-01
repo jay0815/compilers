@@ -37,8 +37,8 @@ export class JSObject {
 }
 
 interface JSFunctionInterface {
-	call?: (...args: any[]) => unknown;
-	construct?: (...args: any[]) => unknown;
+	call: (...args: any[]) => unknown;
+	construct: (...args: any[]) => unknown;
 }
 
 export class JSFunction extends JSObject implements JSFunctionInterface {
@@ -87,43 +87,43 @@ export class JSFunction extends JSObject implements JSFunctionInterface {
 	}
 }
 
-export class PromiseFunction implements JSFunctionInterface {
-	call() {
-		throw Error("PromiseFunction can not be called");
-	}
-	construct(func: JSFunction, args: any[]) {
-		const obj = new JSObject();
-		const then = new ThenFunction();
-		const resolve = new ResolveFunction(then, this.evaluator);
-		func.call(resolve, args);
-		obj.setProperty("then", then);
-		return obj;
-	}
-}
+// export class PromiseFunction implements JSFunctionInterface {
+// 	call() {
+// 		throw Error("PromiseFunction can not be called");
+// 	}
+// 	construct(func: JSFunction, args: any[]) {
+// 		const obj = new JSObject();
+// 		const then = new ThenFunction();
+// 		const resolve = new ResolveFunction(then, this.evaluator);
+// 		func.call(resolve, args);
+// 		obj.setProperty("then", then);
+// 		return obj;
+// 	}
+// }
 
-class Task {
-	func: JSFunction;
-	args: any;
-	constructor(args: any, func: JSFunction) {
-		this.args = args;
-		this.func = func;
-	}
-	run() {
-		this.func.call(this.func, this.args);
-	}
-}
+// class Task {
+// 	func: JSFunction;
+// 	args: any;
+// 	constructor(args: any, func: JSFunction) {
+// 		this.args = args;
+// 		this.func = func;
+// 	}
+// 	run() {
+// 		this.func.call(this.func, this.args);
+// 	}
+// }
 
-class ResolveFunction implements JSFunctionInterface {
-	then: ThenFunction;
-	constructor(then: ThenFunction, evaluate: Evaluator) {
-		this.then = then;
-		this.evaluator = evaluate;
-	}
-	call(v: any) {
-		this.evaluator.microTaskQueue.push(new Task(v, this.then));
-	}
-}
+// class ResolveFunction implements JSFunctionInterface {
+// 	then: ThenFunction;
+// 	constructor(then: ThenFunction, evaluate: Evaluator) {
+// 		this.then = then;
+// 		this.evaluator = evaluate;
+// 	}
+// 	call(v: any) {
+// 		this.evaluator.microTaskQueue.push(new Task(v, this.then));
+// 	}
+// }
 
-class ThenFunction implements JSFunctionInterface {
-	call(func: JSFunction) {}
-}
+// class ThenFunction implements JSFunctionInterface {
+// 	call(func: JSFunction) {}
+// }

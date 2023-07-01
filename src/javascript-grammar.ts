@@ -15,13 +15,11 @@ const Grammar = [
 			["NullLiteral"],
 			["StringLiteral"],
 			["NumberLiteral"],
-			["ObjectLiteral"],
-			["FunctionExpression"],
 		],
 	],
 	[
 		"FunctionExpression",
-		[["function", "Identifier", "(", "Parameters", ")", "StatementList"]],
+		[["function", "Identifier", "(", "Parameters", ")", "Statement"]],
 	],
 	// todo 补充 Object key 使用 [] 的语法
 	[
@@ -41,7 +39,12 @@ const Grammar = [
 	],
 	[
 		"PrimaryExpression",
-		[["(", "Expression", ")"], ["Identifier"], ["Literal"]],
+		[
+			["Identifier"],
+			["Literal"],
+			["ObjectLiteral"],
+			["FunctionExpression"],
+		],
 	],
 	[
 		"MemberExpression",
@@ -49,6 +52,7 @@ const Grammar = [
 			["PrimaryExpression"],
 			["new", "MemberExpression", "(", ")"],
 			["new", "MemberExpression", "(", "Arguments", ")"],
+			["MemberExpression", "(", ")"],
 			["MemberExpression", "(", "Arguments", ")"],
 			["MemberExpression", ".", "Identifier"],
 			["MemberExpression", "[", "Expression", "]"],
@@ -59,17 +63,20 @@ const Grammar = [
 		[["AssignmentExpression"], ["Arguments", ",", "AssignmentExpression"]],
 	],
 	["NewExpression", [["MemberExpression"], ["new", "NewExpression"]]],
-	[
-		"CoverCallExpressionAndAsyncArrowHead",
-		[["MemberExpression", "(", "Arguments", ")"]],
-	],
+	// [
+	// 	"CoverCallExpressionAndAsyncArrowHead",
+	// 	[
+	// 		["MemberExpression", "(", "Arguments", ")"],
+	// 		["MemberExpression", "(", ")"],
+	// 	],
+	// ],
 	[
 		"CallExpression",
 		[
-			["CoverCallExpressionAndAsyncArrowHead"],
-			["CallExpression", "(", "Arguments", ")"],
-			["CallExpression", "[", "Expression", "]"],
-			["CallExpression", ".", "IdentifierName"],
+			["MemberExpression"],
+			// ["CallExpression", "(", "Arguments", ")"],
+			// ["CallExpression", "[", "Expression", "]"],
+			// ["CallExpression", ".", "Identifier"],
 		],
 	],
 	[
@@ -122,17 +129,10 @@ const Grammar = [
 	[
 		"FunctionDeclaration",
 		[
-			["function", "Identifier", "(", "Parameters", ")", "StatementList"],
-			["function", "Identifier", "(", ")", "StatementList"],
-			[
-				"function",
-				"StringLiteral",
-				"(",
-				"Parameters",
-				")",
-				"StatementList",
-			],
-			["function", "StringLiteral", "(", ")", "StatementList"],
+			["function", "Identifier", "(", "Parameters", ")", "Statement"],
+			["function", "Identifier", "(", ")", "Statement"],
+			["function", "StringLiteral", "(", "Parameters", ")", "Statement"],
+			["function", "StringLiteral", "(", ")", "Statement"],
 		],
 	],
 	[
@@ -147,16 +147,8 @@ const Grammar = [
 	[
 		"IfStatement",
 		[
-			["if", "(", "Expression", ")", "StatementList"],
-			[
-				"if",
-				"(",
-				"Expression",
-				")",
-				"StatementList",
-				"else",
-				"StatementList",
-			],
+			["if", "(", "Expression", ")", "Statement"],
+			["if", "(", "Expression", ")", "Statement", "else", "Statement"],
 		],
 	],
 	[
@@ -171,13 +163,13 @@ const Grammar = [
 				";",
 				"Expression",
 				")",
-				"StatementList",
+				"Statement",
 			],
 		],
 	],
 	["BreakStatement", [["break", ";"], ["break"]]],
 	["ContinueStatement", [["continue", ";"], ["continue"]]],
-	["WhileStatement", [["while", "(", "Expression", ")", "StatementList"]]],
+	["WhileStatement", [["while", "(", "Expression", ")", "Statement"]]],
 	["UnaryExpression", [["UpdateExpression"]]],
 	[
 		"UpdateExpression",

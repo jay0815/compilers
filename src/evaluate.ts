@@ -2,7 +2,8 @@ import { Token } from "./index";
 import Reference from "./reference";
 import Environment from "./Environment";
 import Completion from "./Completion";
-import { JSFunction, JSObject, PromiseFunction } from "./baseType";
+// import { JSFunction, JSObject, PromiseFunction } from "./baseType";
+import { JSObject } from "./baseType";
 import { Identifier } from './js-lexical';
 
 export type Node = { type: string; children: Token[] };
@@ -547,23 +548,23 @@ const evaluator = {
 		const size = node.children.length;
 		const name = (node.children[1] as any).value;
 		if (size === 7) {
-			const func = new JSFunction(
-				node.children[5] as any,
-				evaluator,
-				this.currentEnv,
-				[]
-			);
-			this.currentEnv.identifier(name);
-			this.currentEnv.set(name, func);
+			// const func = new JSFunction(
+			// 	node.children[5] as any,
+			// 	evaluator,
+			// 	this.currentEnv,
+			// 	[]
+			// );
+			// this.currentEnv.identifier(name);
+			// this.currentEnv.set(name, func);
 		} else {
-			const func = new JSFunction(
-				node.children[6] as any,
-				evaluator,
-				this.currentEnv,
-				[]
-			);
-			this.currentEnv.identifier(name);
-			this.currentEnv.set(name, func);
+			// const func = new JSFunction(
+			// 	node.children[6] as any,
+			// 	evaluator,
+			// 	this.currentEnv,
+			// 	[]
+			// );
+			// this.currentEnv.identifier(name);
+			// this.currentEnv.set(name, func);
 		}
 
 		return new Completion("normal");
