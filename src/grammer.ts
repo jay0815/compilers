@@ -1,13 +1,23 @@
-import type { ClosureState } from "./closure";
-export const initState = {
-	Literal: {
-		EOF: {
-			$finish: true,
-		},
-	},
-} as unknown as ClosureState;
-
 const Grammar = [
+	["Program", [["StatementList"]]],
+	[
+		"StatementList",
+		[["StatementListItem"], ["StatementList", "StatementListItem"]],
+	],
+	["StatementListItem", [["Statement"], ["Declaration"]]],
+	[
+		"Statement",
+		[
+			["ExpressionStatement"],
+			["IfStatement"],
+			["ForStatement"],
+			["WhileStatement"],
+			["BlockStatement"],
+			["BreakStatement"],
+			["ContinueStatement"],
+		],
+	],
+	["Declaration", [["LexicalDeclaration"], ["FunctionDeclaration"]]],
 	[
 		"Literal",
 		[
@@ -105,18 +115,7 @@ const Grammar = [
 		"Expression",
 		[["AssignmentExpression"], ["Expression", ",", "AssignmentExpression"]],
 	],
-	[
-		"Statement",
-		[
-			["ExpressionStatement"],
-			["IfStatement"],
-			["ForStatement"],
-			["WhileStatement"],
-			["BlockStatement"],
-			["BreakStatement"],
-			["ContinueStatement"],
-		],
-	],
+
 	["ExpressionStatement", [["Expression", ";"]]],
 	["Parameters", [["Identifier"], ["Parameters", ",", "Identifier"]]],
 	[
@@ -136,7 +135,6 @@ const Grammar = [
 			["var", "Identifier", "=", "Expression", ";"],
 		],
 	],
-	["Declaration", [["LexicalDeclaration"], ["FunctionDeclaration"]]],
 	[
 		"IfStatement",
 		[
@@ -258,12 +256,6 @@ const Grammar = [
 			["{", "StatementList", "}"],
 		],
 	],
-	[
-		"StatementList",
-		[["StatementListItem"], ["StatementList", "StatementListItem"]],
-	],
-	["StatementListItem", [["Statement"], ["Declaration"]]],
-	["Program", [["StatementList"]]],
 ] as [string, string[][]][];
 
 export default Grammar;

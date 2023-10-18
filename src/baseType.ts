@@ -1,5 +1,6 @@
 import Environment from './Environment';
 import { Evaluator, Node, NodeTypes } from './evaluate';
+// import evaluate from './evaluate';
 interface DataProperty {
   value: any;
   writable: boolean;
@@ -38,7 +39,7 @@ export class JSObject {
 
 interface JSFunctionInterface {
 	call: (...args: any[]) => unknown;
-	construct: (...args: any[]) => unknown;
+	construct?: (...args: any[]) => unknown;
 }
 
 export class JSFunction extends JSObject implements JSFunctionInterface {
@@ -58,7 +59,7 @@ export class JSFunction extends JSObject implements JSFunctionInterface {
 		this.env = env;
 		this.parameters = parameters;
 	}
-	call(that: JSObject, args: any[]) {
+	call(that: JSObject | undefined, args: any[]) {
 		// todo 增加 that 到 env 中
 		const currentEnv = new Environment(this.env);
 		this.parameters.forEach((p, i) => {
@@ -88,42 +89,57 @@ export class JSFunction extends JSObject implements JSFunctionInterface {
 }
 
 // export class PromiseFunction implements JSFunctionInterface {
+// 	evaluator: Evaluator;
+// 	constructor(evaluate: Evaluator) {
+// 		this.evaluator = evaluate;
+// 	}
 // 	call() {
 // 		throw Error("PromiseFunction can not be called");
 // 	}
 // 	construct(func: JSFunction, args: any[]) {
 // 		const obj = new JSObject();
-// 		const then = new ThenFunction();
-// 		const resolve = new ResolveFunction(then, this.evaluator);
-// 		func.call(resolve, args);
+// 		const resolve = new ResolveFunction(this.evaluator, obj);
+// 		const then = new ThenFunction(resolve, obj);
+// 		func.call(void 0, [resolve]);
 // 		obj.setProperty("then", then);
 // 		return obj;
 // 	}
 // }
-
+// class ThenFunction implements JSFunctionInterface {
+// 	resolve: ResolveFunction;
+// 	constructor(resolve: ResolveFunction, obj: JSObject) {
+// 		this.resolve = resolve;
+// 	}
+// 	call(func: ThenFunction, args: any[]) {
+// 		this.resolve.then = func;
+// 	}
+// }
 // class Task {
-// 	func: JSFunction;
+// 	func: ThenFunction | null;
 // 	args: any;
-// 	constructor(args: any, func: JSFunction) {
+// 	constructor(args: any, func: ThenFunction) {
 // 		this.args = args;
 // 		this.func = func;
 // 	}
 // 	run() {
-// 		this.func.call(this.func, this.args);
+// 		if (this.func){
+// 			this.func.call();
+// 		}
 // 	}
 // }
 
 // class ResolveFunction implements JSFunctionInterface {
-// 	then: ThenFunction;
-// 	constructor(then: ThenFunction, evaluate: Evaluator) {
-// 		this.then = then;
+// 	then: ThenFunction | null;
+// 	evaluator: Evaluator;
+// 	promise: JSObject;
+// 	constructor(evaluate: Evaluator, obj: JSObject) {
+// 		this.then = null;
 // 		this.evaluator = evaluate;
+// 		this.promise = obj;
 // 	}
 // 	call(v: any) {
 // 		this.evaluator.microTaskQueue.push(new Task(v, this.then));
+// 		this.promise.setProperty("status", "resolved");; 
 // 	}
 // }
 
-// class ThenFunction implements JSFunctionInterface {
-// 	call(func: JSFunction) {}
-// }

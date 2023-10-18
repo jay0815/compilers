@@ -4,6 +4,7 @@ import Grammar from "../src/javascript-grammar";
 import expressionParser from "../src";
 import evaluate, { globalEnv } from "../src/evaluate";
 import { genGrammar, genInitState } from "../src/helper";
+import evaluator from '../src/evaluate';
 
 describe("test for statement analyze", () => {
 	test("condition is true", () => {
@@ -26,7 +27,7 @@ describe("test for statement analyze", () => {
 			genGrammar(Grammar),
 			list
 		);
-		evaluate(ast[0]);
+		evaluator.evaluate(ast[0]);
 		expect(globalEnv.get("b")).toBe(9);
 	});
 
@@ -49,7 +50,7 @@ describe("test for statement analyze", () => {
 			genGrammar(Grammar),
 			list
 		);
-		evaluate(ast[0]);
+		evaluator.evaluate(ast[0]);
 		expect(globalEnv.get("i")).toBe(1);
 	});
 
@@ -74,7 +75,7 @@ describe("test for statement analyze", () => {
 			genGrammar(Grammar),
 			list
 		);
-		evaluate(ast[0]);
+		evaluator.evaluate(ast[0]);
 		expect(globalEnv.get("i")).toBe(2);
 	});
 });

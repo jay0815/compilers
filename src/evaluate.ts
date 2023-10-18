@@ -5,7 +5,18 @@ import Completion from "./Completion";
 // import { JSFunction, JSObject, PromiseFunction } from "./baseType";
 import { JSObject } from "./baseType";
 import { Identifier } from './js-lexical';
+import genExpression from "./js-lexical";
+import { ClosureState } from "./closure";
+import Grammar from "./javascript-grammar";
+import expressionParser from "./index";
 
+const genGrammar = (grammar: [string, string[][]][]) => {
+	const map = new Map(grammar);
+	return map;
+};
+const genInitState = (state: any) => {
+	return state as ClosureState;
+};
 export type Node = { type: string; children: Token[] };
 export type NodeTypes = keyof Evaluator;
 
@@ -41,6 +52,23 @@ const evaluator = {
 			>
 		](ast as any);
 	},
+	evaluateString(sourceCode: string) {
+		const list = genExpression(sourceCode);
+		const ast = expressionParser(
+			genInitState({
+				Program: {
+					EOF: {
+						$finish: true,
+					},
+				},
+			}),
+			genGrammar(Grammar),
+			list
+		);
+		this.evaluate(ast[0]);
+		this.runTask()
+	},
+	// drain
 	runTask() {
 		// 宏任务
 		while (this.microTaskQueue.length) {
@@ -584,4 +612,4 @@ const evaluator = {
 
 export type Evaluator = typeof evaluator;
 
-export default evaluate;
+export default evaluator;
